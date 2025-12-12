@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Адмін панель (Lab 6)</title>
+    <style>
+        .form-group { margin-bottom: 10px; border: 1px solid #ccc; padding: 10px; }
+        label { display: block; margin-bottom: 5px; }
+        input { width: 100%; box-sizing: border-box; margin-bottom: 5px; }
+        button { cursor: pointer; padding: 10px; background: #28a745; color: white; border: none; }
+        .remove-btn { background: #dc3545; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container" style="max-width: 600px; margin: 0 auto;">
+    <h1>Конструктор Меню (Admin)</h1>
+
+    <div id="menu-items-container">
+    </div>
+
+    <button onclick="addMenuItem()" style="background: #007bff; margin-top: 10px;">+ Додати пункт меню</button>
+    <hr>
+    <button onclick="saveMenuToServer()">ЗБЕРЕГТИ НА СЕРВЕР</button>
+    <p id="status"></p>
+</div>
+
+<script>
+    function addMenuItem() {
+        const container = document.getElementById('menu-items-container');
+        const div = document.createElement('div');
+        div.className = 'form-group';
+        div.innerHTML = `
+                <label>Назва пункту:</label>
+                <input type="text" class="menu-title" placeholder="Напр: Про нас">
+                <label>Посилання:</label>
+                <input type="text" class="menu-link" placeholder="Напр: page2.html">
+                
+                <label>Підпункти (через кому):</label>
+                <input type="text" class="submenu-items" placeholder="Напр: Історія, Команда, Вакансії">
+                
+                <button class="remove-btn" onclick="this.parentElement.remove()">Видалити</button>
+            `;
+        container.appendChild(div);
+    }
+    
+    async function saveMenuToServer() {
+        const items = document.querySelectorAll('.form-group');
+        let menuData = [];
+
+        items.forEach(item => {
+            let title = item.querySelector('.menu-title').value;
+            let link = item.querySelector('.menu-link').value;
+            let submenuRaw = item.querySelector('.submenu-items').value;
+            
+            let submenu = submenuRaw ? submenuRaw.split(',').map(s => s.trim()) : [];
+
+            if(title) {
+                menuData.push({ title, link, submenu });
+            }
+        });
+        
+        try {
+            let response = await fetch('server.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(menuData)
+            });
+            let result = await response.json();
+            document.getElementById('status').innerText = result.message;
+        } catch (e) {
+            alert("Помилка! Переконайтесь, що ви запустили це через сервер (XAMPP/Hosting), а не просто відкрили файл.");
+        }
+    }
+    
+    addMenuItem();
+</script>
+</body>
+</html>

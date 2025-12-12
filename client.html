@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Клієнт (Lab 6)</title>
+    <link rel="stylesheet" href="menu_style.css">
+</head>
+<body>
+
+<div class="container" style="text-align: center;">
+    <h1>Меню сайту (Оновлюється автоматично)</h1>
+    <p>Змініть щось на сторінці Admin, і через 3 секунди це з'явиться тут.</p>
+
+    <nav id="dynamic-menu" class="dropdown-menu-container"></nav>
+</div>
+
+<script>
+    async function loadMenu() {
+        try {
+            let response = await fetch('server.php?t=' + Date.now());
+            let data = await response.json();
+
+            renderMenu(data);
+        } catch (e) {
+            console.log("Сервер поки недоступний або порожній");
+        }
+    }
+    
+    function renderMenu(data) {
+        const container = document.getElementById('dynamic-menu');
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = "<p>Меню поки порожнє...</p>";
+            return;
+        }
+        
+        let html = '<ul class="dropdown-menu">';
+
+        data.forEach(item => {
+            html += `<li><a href="${item.link}">${item.title}</a>`;
+            
+            if (item.submenu && item.submenu.length > 0) {
+                html += '<ul class="submenu">';
+                item.submenu.forEach(sub => {
+                    html += `<li><a href="#">${sub}</a></li>`;
+                });
+                html += '</ul>';
+            }
+
+            html += `</li>`;
+        });
+
+        html += '</ul>';
+        
+        if (container.innerHTML !== html) {
+            container.innerHTML = html;
+            console.log("Меню оновлено!");
+        }
+    }
+    
+    loadMenu();
+    setInterval(loadMenu, 3000);
+</script>
+</body>
+</html>
