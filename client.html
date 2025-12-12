@@ -2,16 +2,48 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Клієнт (Lab 6)</title>
+    <title>СТО Копатич - КЛІЄНТ</title>
+    <link rel="stylesheet" href="style_grid.css">
     <link rel="stylesheet" href="menu_style.css">
+    <style>
+        .block.center {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            overflow: visible;
+            z-index: 10;
+        }
+        .dropdown-menu-container {
+            margin-top: 20px;
+            background: #333;
+            width: 90%;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
 
-<div class="container" style="text-align: center;">
-    <h1>Меню сайту (Оновлюється автоматично)</h1>
-    <p>Змініть щось на сторінці Admin, і через 3 секунди це з'явиться тут.</p>
+<div class="container">
+    <div class="block header"> <h1>СТО Копатич</h1> <p>Сайт з ремонту машин</p></div>
+    <div class="block left"><p>Наші послуги найкращі...</p></div>
+    <div class="block top"><p>Вітаємо!</p></div>
 
-    <nav id="dynamic-menu" class="dropdown-menu-container"></nav>
+    <div class="block center">
+        <h3>Навігація (Live Update)</h3>
+
+        <nav id="dynamic-menu" class="dropdown-menu-container"></nav>
+
+        <p style="margin-top: 50px; font-size: 12px; color: #888;">
+            (Це меню керується з сторінки admin.html)
+        </p>
+    </div>
+
+    <div class="block right"><img src="images/logo.png" alt="logo" class="img_logo"></div>
+    <div class="block bottom"><p>Наш девіз...</p></div>
+    <div class="block footer">
+        <h2>Клієнт</h2>
+    </div>
 </div>
 
 <script>
@@ -22,27 +54,29 @@
 
             renderMenu(data);
         } catch (e) {
-            console.log("Сервер поки недоступний або порожній");
+            console.log("Очікування сервера...");
         }
     }
-    
+
     function renderMenu(data) {
         const container = document.getElementById('dynamic-menu');
-        
+
         if (!data || data.length === 0) {
-            container.innerHTML = "<p>Меню поки порожнє...</p>";
+            container.innerHTML = "<p style='color:white; padding:10px;'>Меню порожнє...</p>";
             return;
         }
-        
+
         let html = '<ul class="dropdown-menu">';
 
         data.forEach(item => {
-            html += `<li><a href="${item.link}">${item.title}</a>`;
+            let mainLink = item.link ? item.link : '#';
+            html += `<li><a href="${mainLink}">${item.title}</a>`;
             
             if (item.submenu && item.submenu.length > 0) {
                 html += '<ul class="submenu">';
                 item.submenu.forEach(sub => {
-                    html += `<li><a href="#">${sub}</a></li>`;
+                    let subLink = sub.link ? sub.link : '#';
+                    html += `<li><a href="${subLink}">${sub.title}</a></li>`;
                 });
                 html += '</ul>';
             }
@@ -54,12 +88,12 @@
         
         if (container.innerHTML !== html) {
             container.innerHTML = html;
-            console.log("Меню оновлено!");
         }
     }
     
     loadMenu();
     setInterval(loadMenu, 3000);
 </script>
+
 </body>
 </html>
